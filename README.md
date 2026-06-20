@@ -1,8 +1,20 @@
 # 🛍️ Mashmart AI
 
-Mashmart AI is a multi-agent shopping intelligence platform that aggregates products from multiple marketplaces, provides AI-powered shopping assistance, vision-based product discovery, gesture-controlled navigation, and analytics-driven administration.
+Mashmart AI is a next-generation shopping intelligence platform that helps users discover products, compare prices across multiple marketplaces, receive intelligent shopping assistance, and navigate the platform using real-time hand gestures.
 
+The platform combines AI-powered product discovery, visual search, gesture-based interaction, checkout orchestration, and business analytics into a unified shopping experience.
+---
+Problem Statement
 
+Online shoppers often face several challenges:
+
+Comparing prices across multiple platforms is time-consuming.
+Product discovery requires searching multiple websites.
+Reviews and specifications can be overwhelming.
+Traditional shopping interfaces depend heavily on mouse and keyboard interactions.
+Businesses lack unified analytics across shopping activities.
+
+Mashmarket AI addresses these challenges through a collaborative AI-agent architecture.
 
 ---
 
@@ -10,6 +22,14 @@ Mashmart AI is a multi-agent shopping intelligence platform that aggregates prod
 
 ### 🔍 AI Vision Search
 Upload a product image and let AI identify the item and find similar products from the catalog.
+
+## Product Discovery
+Current feature:
+Searches Amazon, Flipkart, Myntra
+
+## Price aggregator
+Current feature:
+Compares prices Finds cheapest option
 
 ### 💬 AI Shopping Assistant
 An intelligent shopping assistant that helps users:
@@ -71,7 +91,16 @@ Mashmart consists of multiple specialized agents:
 ![Architecture](architecture.png)
 
 ---
-
+### User Workflow
+- User uploads an image or searches for a product.
+- Vision Search Agent identifies the product.
+- Product Discovery Agent retrieves matching items.
+- Price Intelligence Agent compares available prices.
+- Shopping Advisor Agent recommends the best options.
+- User navigates using hand gestures or traditional controls.
+- Checkout Agent processes the order.
+- Analytics Agent records and visualizes transaction insights.
+---
 
 ## 🛠️ Technology Stack
 
@@ -96,7 +125,12 @@ Mashmart consists of multiple specialized agents:
 - Chart.js
 
 ---
+Project Vision
 
+Mashmarket AI demonstrates how multiple specialized AI agents can work together to create a smarter, faster, and more engaging shopping experience.
+
+By combining AI reasoning, computer vision, gesture recognition, and business intelligence, the platform showcases the practical application of AI agents in real-world commerce.
+---
 
 ## 📂 Project Structure
 
@@ -183,17 +217,9 @@ http://127.0.0.1:5000
 ---
 
 
-## 🎯 Key Highlights
 
-- AI-powered product discovery
-- Vision-based shopping search
-- Gesture-controlled navigation
-- Multi-platform aggregation
-- Intelligent shopping assistant
-- Analytics-driven administration
-- Dynamic content management
 
----
+
 
 ## 🔮 Future Enhancements
 
