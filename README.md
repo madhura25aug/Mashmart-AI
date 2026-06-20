@@ -23,11 +23,11 @@ Mashmarket AI addresses these challenges through a collaborative AI-agent archit
 ### 🔍 AI Vision Search
 Upload a product image and let AI identify the item and find similar products from the catalog.
 
-## Product Discovery
+### Product Discovery
 Current feature:
 Searches Amazon, Flipkart, Myntra
 
-## Price aggregator
+### Price aggregator
 Current feature:
 Compares prices Finds cheapest option
 
@@ -190,7 +190,7 @@ http://127.0.0.1:5000
 
 ## 📸 Screenshots
 
-### Home Page
+
 
 ### Home Page
 
@@ -200,6 +200,10 @@ http://127.0.0.1:5000
 
 ![Vision Search](vision-search.png)
 
+### Product details
+![Product](product.png)
+
+
 ### AI Shopping Assistant
 
 ![AI Assistant](ai-assistant.png)
@@ -207,6 +211,9 @@ http://127.0.0.1:5000
 ### Gesture Navigation
 
 ![Gesture Control](gesture-control.png)
+
+### Order Checkout
+![Order Checkout](order-placed.png)
 
 ### Analytics Dashboard
 
