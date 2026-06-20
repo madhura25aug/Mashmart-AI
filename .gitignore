@@ -1,0 +1,26 @@
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database
+*.db
+*.sqlite3
+
+# VS Code
+.vscode/
+
+# Mac files
+.DS_Store
+
+# Logs
+*.log
+
+# User Uploads
+static/uploads/
+
+# Virtual Environment
+venv/
+env/

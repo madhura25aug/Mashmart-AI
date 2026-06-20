@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Auth — Mashmart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --violet: #7C3AED;
+            --pink: #EC4899;
+            --bg: #060B14;
+            --surface: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #E2E8F0;
+            --muted: rgba(255, 255, 255, 0.5);
+            --neon-glow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient background lights */
+        .ambient-light {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(40px);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .light-1 {
+            top: 10%;
+            left: 15%;
+            animation: floatLight 12s infinite alternate;
+        }
+        .light-2 {
+            bottom: 10%;
+            right: 15%;
+            animation: floatLight 15s infinite alternate-reverse;
+        }
+
+        @keyframes floatLight {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -40px) scale(1.2); }
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 24px;
+            z-index: 10;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--violet), var(--pink));
+        }
+
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--violet), var(--pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 60%, var(--muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Form sections */
+        .form-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .form-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--violet);
+            background: rgba(124, 58, 237, 0.03);
+            box-shadow: var(--neon-glow);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--violet), var(--pink));
+            color: #fff;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+            color: #fff;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--violet);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--pink);
+        }
+
+        /* Toggle mode styling */
+        .auth-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .auth-link {
+            color: #A78BFA;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 4px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .auth-link:hover {
+            color: #C084FC;
+            text-decoration: underline;
+        }
+
+        /* Spacing for registration fields */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Loader animation */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Ambient Glows -->
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="logo-section">
+                <div class="logo-badge">MM</div>
+                <h1 class="brand-name">Mashmart</h1>
+                <div class="brand-subtitle">Smart Price Scraper & Analytics</div>
+            </div>
+
+            <!-- TAB SWITCHERS -->
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchTab('customer-login')">User Login</button>
+                <button class="tab-btn" onclick="switchTab('customer-register')">Register</button>
+                <button class="tab-btn" onclick="switchTab('admin-login')">Admin Access</button>
+            </div>
+
+            <!-- CUSTOMER LOGIN FORM -->
+            <div id="customer-login" class="form-section active">
+                <form onsubmit="handleAuth(event, '/login', 'customer-login')">
+                    <div class="form-group">
+                        <label class="form-label">Username or Email</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">👤</span>
+                            <input type="text" name="username" class="form-input" placeholder="Enter username/email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <div class="spinner"></div>
+                        <span>Login to Storefront</span>
+                    </button>
+                </form>
+                <div class="auth-footer">
+                    Don't have an account? <span class="auth-link" onclick="switchTab('customer-register')">Register here</span>
+                </div>
+            </div>
+
+            <!-- CUSTOMER REGISTRATION FORM -->
+            <div id="customer-register" class="form-section">
+                <form onsubmit="handleAuth(event, '/register', 'customer-register')">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">👤</span>
+                                <input type="text" name="username" class="form-input" style="padding-left: 36px;" placeholder="user123" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">✉️</span>
+                                <input type="email" name="email" class="form-input" style="padding-left: 36px;" placeholder="alex@example.com" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" name="password" class="form-input" placeholder="Minimum 6 characters" required minlength="6">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">📞</span>
+                                <input type="tel" name="phone" class="form-input" style="padding-left: 36px;" placeholder="9876543210" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pincode</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">📍</span>
+                                <input type="text" name="pincode" id="reg-pincode" class="form-input" style="padding-left: 36px;" placeholder="560001" required maxlength="6">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Delivery Address</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🏠</span>
+                            <input type="text" name="address" class="form-input" placeholder="House #, Building, Street Address" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <div class="spinner"></div>
+                        <span>Create Account</span>
+                    </button>
+                </form>
+                <div class="auth-footer">
+                    Already have an account? <span class="auth-link" onclick="switchTab('customer-login')">Login here</span>
+                </div>
+            </div>
+
+            <!-- ADMIN LOGIN FORM -->
+            <div id="admin-login" class="form-section">
+                <form onsubmit="handleAuth(event, '/login', 'admin-login')">
+                    <div class="form-group">
+                        <label class="form-label">Admin Username</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔑</span>
+                            <input type="text" name="username" class="form-input" placeholder="Admin username" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Security Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #7C3AED, #4F46E5);">
+                        <div class="spinner"></div>
+                        <span>Access Admin Panel</span>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast System -->
+    <div id="toast" class="toast">
+        <span id="toast-icon"></span>
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        // Switch between Customer Login, Customer Register, and Admin Login tabs
+        function switchTab(tabId) {
+            // Remove active status from all forms
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            // Remove active status from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Set active class to target section and appropriate button
+            document.getElementById(tabId).classList.add('active');
+            
+            // Find active tab button by content match or ordering
+            const buttons = document.querySelectorAll('.tab-btn');
+            if (tabId === 'customer-login') buttons[0].classList.add('active');
+            else if (tabId === 'customer-register') buttons[1].classList.add('active');
+            else if (tabId === 'admin-login') buttons[2].classList.add('active');
+        }
+
+        // Toast Helper
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-message');
+
+            msg.textContent = message;
+            toast.className = 'toast show ' + (isSuccess ? 'toast-success' : 'toast-error');
+            icon.textContent = isSuccess ? '✅' : '❌';
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+
+        // Handle AJAX submission for Login and Registration
+        async function handleAuth(event, endpoint, sectionId) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = form.querySelector('.btn-submit');
+            const spinner = submitBtn.querySelector('.spinner');
+            const btnText = submitBtn.querySelector('span');
+
+            // Collect form data
+            const formData = new FormData(form);
+            const dataObj = {};
+            formData.forEach((value, key) => { dataObj[key] = value; });
+
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.style.opacity = '0.5';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataObj)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message || 'Authentication successful! Redirecting...', true);
+                    
+                    // Redirect on login success
+                    if (result.redirect) {
+                        setTimeout(() => {
+                            window.location.href = result.redirect;
+                        }, 1200);
+                    } else if (endpoint === '/register') {
+                        // Switch to login tab on registration success
+                        setTimeout(() => {
+                            form.reset();
+                            switchTab('customer-login');
+                        }, 1500);
+                    }
+                } else {
+                    showToast(result.error || 'Operation failed. Please check inputs.', false);
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('A network error occurred. Please try again.', false);
+            } finally {
+                // Remove loading state
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.style.opacity = '1';
+            }
+        }
+    </script>
+</body>
+</html>

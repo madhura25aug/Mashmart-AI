@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success — Mashmart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --violet: #7C3AED;
+            --pink: #EC4899;
+            --amber: #F59E0B;
+            --green: #10B981;
+            --bg: #060B14;
+            --surface: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #E2E8F0;
+            --muted: rgba(255, 255, 255, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient light glows */
+        .ambient-glow {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(40px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .success-card {
+            background: var(--surface);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 550px;
+            padding: 40px 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--green), #34D399);
+        }
+
+        .success-icon-wrapper {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.12);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px auto;
+            font-size: 32px;
+            color: #34D399;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+            100% { transform: scale(1.05); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
+        }
+
+        .success-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .success-subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+
+        /* Order Info Box */
+        .order-box {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .order-id-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            margin-bottom: 14px;
+        }
+
+        .order-id-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .order-id-val {
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 14px;
+            color: #A78BFA;
+            background: rgba(124, 58, 237, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .order-item-detail {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .detail-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            max-width: 250px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            text-align: right;
+        }
+
+        .detail-val.price {
+            color: #FCD34D;
+            font-weight: 700;
+        }
+
+        /* Order Timeline Progress */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin: 12px 10px 40px 10px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green), var(--amber));
+            z-index: 2;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+            position: relative;
+        }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #0E1624;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .step.completed .step-dot {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .step.active .step-dot {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--amber);
+            color: var(--amber);
+            animation: pulseStep 1.5s infinite alternate;
+        }
+
+        @keyframes pulseStep {
+            0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
+            100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.6); }
+        }
+
+        .step-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .step.completed .step-label { color: #fff; }
+        .step.active .step-label { color: var(--amber); }
+
+        /* Actions Buttons */
+        .success-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Delivery Route Map Styling */
+        .map-section {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+            position: relative;
+        }
+
+        .map-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 180px;
+            background: #090e17;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            background-image: linear-gradient(rgba(9, 14, 23, 0.65), rgba(9, 14, 23, 0.65)), url('/static/dark_city_map.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Dotted animated route path */
+        .route-path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.15);
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .route-path-glow {
+            fill: none;
+            stroke: var(--violet);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 8 6;
+            animation: dashMove 30s linear infinite;
+        }
+
+        @keyframes dashMove {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        .map-pin {
+            position: absolute;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+        }
+
+        .pin-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--green);
+            border: 2.5px solid #090e17;
+            box-shadow: 0 0 10px var(--green);
+        }
+
+        .pin-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1.5px solid var(--green);
+            animation: pulsePin 1.5s infinite ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes pulsePin {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        /* Moving Delivery Truck */
+        .delivery-truck {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: var(--amber);
+            border: 2px solid #090e17;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 0 12px var(--amber);
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            offset-path: path('M 40 140 Q 180 30 260 120 T 440 60'); /* vector path matching SVG */
+            animation: drive 12s linear infinite;
+        }
+
+        @keyframes drive {
+            0% { offset-distance: 0%; }
+            100% { offset-distance: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="success-card">
+        <div class="success-icon-wrapper">✓</div>
+        <h1 class="success-title">Order Confirmed!</h1>
+        <p class="success-subtitle">Thank you for your purchase. Your payment was successfully processed in our sandbox environment.</p>
+
+        <!-- ORDER DETAIL SUMMARY -->
+        <div class="order-box">
+            <div class="order-id-row">
+                <span class="order-id-label">Order Reference</span>
+                <span class="order-id-val" id="success-order-id">{{ order.order_id or 'MM-TEST-000000' }}</span>
+            </div>
+            
+            <div class="order-item-detail">
+                <span class="detail-label">Item Purchased</span>
+                <span class="detail-val" title="{{ order.product or 'N/A' }}">{{ order.product or 'Demo Product' }}</span>
+            </div>
+            <div class="order-item-detail">
+                <span class="detail-label">Store Scraped</span>
+                <span class="detail-val" id="success-order-platform" style="text-transform: capitalize;">{{ order.platform or 'amazon' }}</span>
+            </div>
+            <div class="order-item-detail">
+                <span class="detail-label">Amount Paid</span>
+                <span class="detail-val price">₹{{ "{:,}".format(order.price) if order.price else '0' }}</span>
+            </div>
+            <div class="order-item-detail">
+                <span class="detail-label">Customer Name</span>
+                <span class="detail-val">{{ order.name or 'Valued Customer' }}</span>
+            </div>
+        </div>
+
+        <!-- REAL ROUTE VISUALIZATION MAP -->
+        <div class="map-section">
+            <div class="map-title">
+                <span>📍 Live Delivery Route Tracker</span>
+            </div>
+            <div class="map-container">
+                <!-- SVG map connections -->
+                <svg width="100%" height="100%" viewBox="0 0 480 200" preserveAspectRatio="none" style="position: absolute; top:0; left:0; width:100%; height:100%; z-index: 2;">
+                    <path d="M 40 140 Q 180 30 260 120 T 440 60" class="route-path" />
+                    <path d="M 40 140 Q 180 30 260 120 T 440 60" class="route-path-glow" />
+                </svg>
+
+                <!-- Source Pin -->
+                <div class="map-pin" style="left: 8.33%; top: 70%;">
+                    <div class="pin-dot" style="background: var(--violet); box-shadow: 0 0 10px var(--violet);"></div>
+                    <div class="pin-pulse" style="border-color: var(--violet);"></div>
+                    <span style="position: absolute; top: 18px; left: -32px; font-size: 10px; font-weight: 700; white-space: nowrap; color: #fff;">{{ order.platform|capitalize or 'Seller' }} Hub</span>
+                </div>
+
+                <!-- Destination Pin -->
+                <div class="map-pin" style="left: 91.66%; top: 30%;">
+                    <div class="pin-dot"></div>
+                    <div class="pin-pulse"></div>
+                    <span style="position: absolute; top: 18px; left: -25px; font-size: 10px; font-weight: 700; white-space: nowrap; color: #fff;">Destination</span>
+                </div>
+
+                <!-- Delivery Vehicle -->
+                <div class="delivery-truck">🚚</div>
+            </div>
+        </div>
+
+        <!-- TRACKING TIMELINE -->
+        <div class="timeline" style="margin-bottom: 12px;">
+            <div class="timeline-progress" id="tracking-progress" style="width: 0%;"></div>
+            
+            <div class="step" id="step-ordered">
+                <div class="step-dot">✓</div>
+                <div class="step-label">Ordered</div>
+            </div>
+            
+            <div class="step" id="step-transit">
+                <div class="step-dot">🚚</div>
+                <div class="step-label">In Transit</div>
+            </div>
+            
+            <div class="step" id="step-delivered">
+                <div class="step-dot">🎁</div>
+                <div class="step-label">Delivered</div>
+            </div>
+        </div>
+
+        <!-- LIVE STATUS TEXT -->
+        <p id="tracking-status" style="font-size: 12px; color: var(--muted); margin-bottom: 32px; font-weight: 600; text-align: center;">Connecting to shipping hub...</p>
+
+        <!-- ACTIONS -->
+        <div class="success-actions">
+            <a href="/" class="btn-action btn-primary">Return to Storefront</a>
+            <a href="/admin" class="btn-action btn-secondary">Admin Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Synchronise delivery animation loop with steps and status text
+        window.addEventListener('DOMContentLoaded', () => {
+            const progress = document.getElementById('tracking-progress');
+            const status = document.getElementById('tracking-status');
+            const stepOrdered = document.getElementById('step-ordered');
+            const stepTransit = document.getElementById('step-transit');
+            const stepDelivered = document.getElementById('step-delivered');
+
+            const platform = document.getElementById('success-order-platform').textContent.trim() || 'Seller';
+            const orderId = document.getElementById('success-order-id').textContent.trim();
+
+            const loopDuration = 12000; // 12 seconds loop (matches CSS drive keyframes)
+
+            function updateTracking() {
+                const now = Date.now();
+                const progressTime = now % loopDuration;
+                const ratio = progressTime / loopDuration;
+
+                // Sync progress fill width
+                progress.style.width = `${ratio * 100}%`;
+
+                // Update steps and statuses based on ratio
+                if (ratio < 0.25) {
+                    // Step 1: Dispatched
+                    stepOrdered.className = 'step active';
+                    stepTransit.className = 'step';
+                    stepDelivered.className = 'step';
+                    status.textContent = `[${orderId}] Order picked and dispatched from nearest ${platform} fulfillment center.`;
+                } else if (ratio < 0.80) {
+                    // Step 2: Transit
+                    stepOrdered.className = 'step completed';
+                    stepTransit.className = 'step active';
+                    stepDelivered.className = 'step';
+                    status.textContent = `[${orderId}] Package in transit. Navigating shipping route lanes to customer address.`;
+                } else {
+                    // Step 3: Delivered
+                    stepOrdered.className = 'step completed';
+                    stepTransit.className = 'step completed';
+                    stepDelivered.className = 'step active';
+                    status.textContent = `[${orderId}] Package out for delivery. Nearing destination drop-off coordinate location.`;
+                }
+            }
+
+            // Loop track updates
+            updateTracking();
+            setInterval(updateTracking, 200);
+        });
+    </script>
+</body>
+</html>

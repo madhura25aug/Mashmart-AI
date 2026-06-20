@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard — Mashmart Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --violet: #7C3AED;
+            --pink: #EC4899;
+            --amber: #F59E0B;
+            --cyan: #06B6D4;
+            --green: #10B981;
+            --red: #EF4444;
+            --purple: #8B5CF6;
+            --bg: #030712;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --surface: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #F3F4F6;
+            --muted: #9CA3AF;
+            --gradient-1: linear-gradient(135deg, #7C3AED, #EC4899);
+            --gradient-2: linear-gradient(135deg, #06B6D4, #10B981);
+            --gradient-3: linear-gradient(135deg, #F59E0B, #EF4444);
+            --gradient-4: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            --glow-violet: 0 0 20px rgba(124, 58, 237, 0.15);
+            --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.15);
+            --glow-pink: 0 0 20px rgba(236, 72, 153, 0.15);
+            --glow-amber: 0 0 20px rgba(245, 158, 11, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(124, 58, 237, 0.05) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(6, 182, 212, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glow Blobs */
+        .ambient-glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(140px);
+            opacity: 0.12;
+            z-index: 1;
+            mix-blend-mode: screen;
+            animation: floatGlow 20s ease-in-out infinite alternate;
+        }
+
+        .glow-1 {
+            background: radial-gradient(circle, var(--violet) 0%, transparent 70%);
+            top: -15%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .glow-2 {
+            background: radial-gradient(circle, var(--pink) 0%, transparent 70%);
+            bottom: -15%;
+            right: 5%;
+            animation-delay: -7s;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(80px, 50px) scale(1.2); }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: rgba(8, 12, 24, 0.85);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            z-index: 100;
+            position: relative;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 6px;
+            margin-bottom: 24px;
+        }
+
+        .logo-rt {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+            color: #fff;
+            box-shadow: var(--glow-pink);
+        }
+
+        .sidebar-brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.3;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-brand small {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 400;
+            display: block;
+            margin-top: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: rgba(124, 58, 237, 0.15);
+            color: #C084FC;
+            font-weight: 600;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            box-shadow: var(--glow-violet);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .admin-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .admin-role {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        /* Main Container */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            max-width: calc(100vw - 260px);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 36px;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, #9CA3AF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-refresh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .btn-nav {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient-1);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-nav:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.3);
+        }
+
+        /* Power BI Category Filters */
+        .filter-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 16px 24px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            backdrop-filter: blur(12px);
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 8px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chip:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .chip.active {
+            background: var(--violet);
+            color: #fff;
+            border-color: rgba(167, 139, 250, 0.5);
+            box-shadow: var(--glow-violet);
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: rgba(17, 24, 39, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 
+                        0 0 20px rgba(124, 58, 237, 0.1);
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 120px;
+            height: 120px;
+            background: var(--accent, var(--gradient-1));
+            filter: blur(50px);
+            opacity: 0.15;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .kpi-card:hover::after {
+            opacity: 0.25;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent, var(--gradient-1));
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .kpi-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .kpi-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: var(--gradient, var(--gradient-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kpi-trend-up {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* Charts Section */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1.8fr 1.2fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chart-header-inline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-canvas-wrap {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+
+        /* Category detailed table breakdown */
+        .category-breakdown-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(12px);
+        }
+
+        .grid-cats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .grid-cat-item {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .grid-cat-item:hover {
+            border-color: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateY(-2px);
+        }
+
+        .cat-item-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cat-badge {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .cat-stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .cat-stat-lbl {
+            color: var(--muted);
+        }
+
+        .cat-stat-val {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Interactive Data Table */
+        .table-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+        }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .table-search {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .table-search:focus {
+            border-color: var(--violet);
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .orders-table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border);
+            font-weight: 700;
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #D1D5DB;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.015);
+            color: #fff;
+        }
+
+        .platform-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: capitalize;
+            border: 1px solid transparent;
+        }
+
+        .platform-amazon {
+            background: rgba(245, 158, 11, 0.1);
+            color: #FBBF24;
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .platform-flipkart {
+            background: rgba(6, 182, 212, 0.1);
+            color: #22D3EE;
+            border-color: rgba(6, 182, 212, 0.2);
+        }
+
+        .platform-myntra {
+            background: rgba(236, 72, 153, 0.1);
+            color: #F472B6;
+            border-color: rgba(236, 72, 153, 0.2);
+        }
+
+        .cat-tag {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #9CA3AF;
+        }
+
+        .status-paid {
+            color: #34D399;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-paid::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #10B981;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        @media(max-width: 1100px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+            .main {
+                max-width: 100vw;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient Glow System -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-rt">MM</div>
+            <div class="sidebar-brand">Mashmart<small>Admin Panel</small></div>
+        </div>
+
+        <a class="nav-item active" href="/admin">
+            <span class="nav-icon">📊</span> Analytics Suite
+        </a>
+        <a class="nav-item" href="/admin/products">
+            <span class="nav-icon">📦</span> Products Catalog
+        </a>
+        <a class="nav-item" href="/">
+            <span class="nav-icon">🛍️</span> Customer Storefront
+        </a>
+        <a class="nav-item" href="/logout">
+            <span class="nav-icon">🚪</span> Sign Out
+        </a>
+
+        <div class="sidebar-footer">
+            <div class="admin-badge">
+                <div class="admin-avatar">{{ username[0]|upper if username else 'A' }}</div>
+                <div>
+                    <div class="admin-name">{{ username or 'Admin' }}</div>
+                    <div class="admin-role">Super Admin</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">📊 Analytics Dashboard</h1>
+                <div class="page-subtitle">Power BI Interactive Aggregator Report</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-refresh" onclick="refreshStats()">↻ Refresh Data</button>
+                <a class="btn-nav" href="/admin/products">📦 Manage Catalog</a>
+            </div>
+        </div>
+
+        <!-- CATEGORY FILTERS CHIPS -->
+        <div class="filter-section">
+            <div class="filter-label">
+                <span>🎯 Interactive Category Slicer:</span>
+            </div>
+            <div class="category-chips" id="slicer-chips">
+                <div class="chip active" onclick="sliceCategory('All', this)">All Categories</div>
+                <div class="chip" onclick="sliceCategory('Fashion', this)">Fashion</div>
+                <div class="chip" onclick="sliceCategory('Mobile', this)">Mobile</div>
+                <div class="chip" onclick="sliceCategory('Beauty', this)">Beauty</div>
+                <div class="chip" onclick="sliceCategory('Electronics', this)">Electronics</div>
+                <div class="chip" onclick="sliceCategory('Food', this)">Food</div>
+            </div>
+        </div>
+
+        <!-- KPI CARDS -->
+        <div class="kpi-grid">
+            <!-- Gross Sales Volume -->
+            <div class="kpi-card" style="--accent: var(--gradient-1)">
+                <div class="kpi-header">
+                    <span class="kpi-label">Gross Sales Volume</span>
+                    <div class="kpi-icon-wrap">💰</div>
+                </div>
+                <div class="kpi-value" id="kpi-sales" style="--gradient: var(--gradient-1)">
+                    ₹{{ "{:,}".format(stats.gross_sales) }}
+                </div>
+                <div class="kpi-sub">
+                    <span class="kpi-trend-up">↑ 10% Margin</span> Included
+                </div>
+            </div>
+
+            <!-- Net Platform Profit -->
+            <div class="kpi-card" style="--accent: var(--gradient-2)">
+                <div class="kpi-header">
+                    <span class="kpi-label">Net Platform Margin</span>
+                    <div class="kpi-icon-wrap">📈</div>
+                </div>
+                <div class="kpi-value" id="kpi-profit" style="--gradient: var(--gradient-2)">
+                    ₹{{ "{:,}".format(stats.net_margin) }}
+                </div>
+                <div class="kpi-sub">
+                    <span>Covert Profit Collected</span>
+                </div>
+            </div>
+
+            <!-- Total Orders -->
+            <div class="kpi-card" style="--accent: var(--gradient-3)">
+                <div class="kpi-header">
+                    <span class="kpi-label">Total Transactions</span>
+                    <div class="kpi-icon-wrap">🛒</div>
+                </div>
+                <div class="kpi-value" id="kpi-orders" style="--gradient: var(--gradient-3)">
+                    {{ stats.total_orders }}
+                </div>
+                <div class="kpi-sub">
+                    <span id="kpi-orders-subtitle">All-time complete checkouts</span>
+                </div>
+            </div>
+
+            <!-- Active Products -->
+            <div class="kpi-card" style="--accent: var(--gradient-4)">
+                <div class="kpi-header">
+                    <span class="kpi-label">Aggregated Catalog</span>
+                    <div class="kpi-icon-wrap">📦</div>
+                </div>
+                <div class="kpi-value" id="kpi-products" style="--gradient: var(--gradient-4)">
+                    50+
+                </div>
+                <div class="kpi-sub">
+                    <span id="kpi-products-subtitle">Across 5 live categories</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="charts-row">
+            <!-- Sales & Profits Comparison (Chart.js Grouped Bar) -->
+            <div class="chart-card">
+                <div class="chart-header-inline">
+                    <div class="chart-title">📈 Category Profitability Overview</div>
+                    <span style="font-size: 11px; color: var(--muted);">Interacts with Category Slicer</span>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="salesMarginChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Platform Distribution (Chart.js Doughnut) -->
+            <div class="chart-card">
+                <div class="chart-header-inline">
+                    <div class="chart-title">🏪 Orders by Platform</div>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="platformPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORIES DETAILED GRID -->
+        <div class="category-breakdown-card">
+            <div class="chart-title">🏷️ Category Performance Table Matrix</div>
+            <div class="grid-cats" id="category-matrix-grid">
+                <!-- Dynamically populated category widgets -->
+            </div>
+        </div>
+
+        <!-- RECENT ORDERS TABLE -->
+        <div class="table-card">
+            <div class="table-controls">
+                <div class="chart-title">🧾 Recent Orders Transactions</div>
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="order-search" class="table-search" placeholder="Search orders (Title, Platform, Category)..." oninput="filterOrdersTable()">
+                </div>
+            </div>
+            
+            <div class="orders-table-container">
+                <table id="recent-orders-table">
+                    <thead>
+                        <tr>
+                            <th>Product Description</th>
+                            <th>Category</th>
+                            <th>Platform</th>
+                            <th>Amount Paid</th>
+                            <th>Margin Collected</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MEDIA MANAGEMENT (CAROUSEL & CATEGORY VIDEOS) -->
+        <div class="table-card" style="margin-top: 30px;">
+            <div class="chart-title">🖼️ Media & Advertisement Management</div>
+            <p style="font-size: 13px; color: var(--muted); margin-bottom: 20px;">Manage home page carousel banners and category-specific animated video slots.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Carousel Management -->
+                <div style="background: rgba(255, 255, 255, 0.015); border: 1px solid var(--border); border-radius: 16px; padding: 20px;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                        🎠 Home Page Carousel Banners
+                    </h3>
+                    <form id="add-banner-form" onsubmit="handleAddBanner(event)" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="file" id="banner-file-input" accept="image/*" style="display: none;" onchange="handleBannerUpload(this)">
+                        <button type="button" class="btn-refresh" onclick="document.getElementById('banner-file-input').click()" style="margin: 0; flex: 1;">
+                            📤 Upload Banner Image
+                        </button>
+                    </form>
+                    <div id="banners-list-container" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto;">
+                        <!-- Banner list populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Category Video Management -->
+                <div style="background: rgba(255, 255, 255, 0.015); border: 1px solid var(--border); border-radius: 16px; padding: 20px;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                        🎥 Category Animated Videos & Covers
+                    </h3>
+                    <form id="update-video-form" onsubmit="handleUpdateVideo(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <select id="video-category-select" class="table-search" style="padding-left: 12px; height: 38px; font-size: 13px; width: 100%; background: #1f2937; color: #ffffff; border: 1px solid var(--border); border-radius: 8px;" required>
+                                <option value="" disabled selected style="background: #111827; color: #9ca3af;">Select Category</option>
+                                <option value="Fashion" style="background: #111827; color: #ffffff;">Fashion</option>
+                                <option value="Mobile" style="background: #111827; color: #ffffff;">Mobile</option>
+                                <option value="Beauty" style="background: #111827; color: #ffffff;">Beauty</option>
+                                <option value="Electronics" style="background: #111827; color: #ffffff;">Electronics</option>
+                                <option value="Food" style="background: #111827; color: #ffffff;">Food</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Video Config -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase;">1. Animated Video Source</span>
+                            <div style="display: flex; gap: 8px; width: 100%;">
+                                <input type="file" id="video-file-input" accept="video/mp4,video/webm" style="display: none;" onchange="handleVideoUpload(this)">
+                                <button type="button" class="btn-refresh" onclick="document.getElementById('video-file-input').click()" style="margin: 0; height: 38px; font-size: 12px; padding: 0 12px; white-space: nowrap; flex-shrink: 0;">
+                                    📤 Upload MP4
+                                </button>
+                                <input type="text" id="video-url-input" class="table-search" style="padding-left: 12px; height: 38px; font-size: 13px; flex: 1; min-width: 0;" placeholder="Paste public MP4 URL...">
+                            </div>
+                        </div>
+
+                        <!-- Image Cover Config -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase;">2. Cover Poster Picture</span>
+                            <div style="display: flex; gap: 8px; width: 100%;">
+                                <input type="file" id="cover-file-input" accept="image/*" style="display: none;" onchange="handleCoverUpload(this)">
+                                <button type="button" class="btn-refresh" onclick="document.getElementById('cover-file-input').click()" style="margin: 0; height: 38px; font-size: 12px; padding: 0 12px; white-space: nowrap; flex-shrink: 0;">
+                                    📤 Upload Cover
+                                </button>
+                                <input type="text" id="cover-url-input" class="table-search" style="padding-left: 12px; height: 38px; font-size: 13px; flex: 1; min-width: 0;" placeholder="Paste cover image URL...">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit" style="margin-top: 5px; height: 38px; font-size: 13px; font-weight: 700;">Save Category Media Configuration</button>
+                    </form>
+                    <div id="videos-list-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; margin-top: 12px;">
+                        <!-- Category videos list populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Store all stats data passed from Flask template
+        const rawStats = {{ stats | tojson }};
+        const catColors = {
+            'Fashion': '#EC4899',
+            'Mobile': '#7C3AED',
+            'Beauty': '#F59E0B',
+            'Electronics': '#06B6D4',
+            'Food': '#10B981'
+        };
+
+        let activeCategory = 'All';
+        let salesChart = null;
+        let platformChart = null;
+
+        // Initialize Dashboard
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderCategoryMatrix();
+            updateKPIs();
+            renderOrdersTable();
+            loadBannersAdmin();
+            loadVideosAdmin();
+        });
+
+        // Initialize Chart.js instances
+        function initCharts() {
+            // Chart 1: Grouped Category Sales vs Profit Chart
+            const ctx1 = document.getElementById('salesMarginChart').getContext('2d');
+            
+            // Build linear gradients for Sales and Profit bars
+            const gradSales = ctx1.createLinearGradient(0, 0, 0, 300);
+            gradSales.addColorStop(0, 'rgba(124, 58, 237, 0.95)');
+            gradSales.addColorStop(1, 'rgba(236, 72, 153, 0.1)');
+
+            const gradMargin = ctx1.createLinearGradient(0, 0, 0, 300);
+            gradMargin.addColorStop(0, 'rgba(6, 182, 212, 0.95)');
+            gradMargin.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
+
+            const labels = rawStats.category_metrics.map(x => x.category);
+            const revenues = rawStats.category_metrics.map(x => x.revenue);
+            const profits = rawStats.category_metrics.map(x => x.profit);
+
+            salesChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Gross Sales (₹)',
+                            data: revenues,
+                            backgroundColor: gradSales,
+                            borderColor: '#7C3AED',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Platform Profit (₹)',
+                            data: profits,
+                            backgroundColor: gradMargin,
+                            borderColor: '#06B6D4',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#E2E8F0',
+                                font: { family: 'Outfit', weight: '500' }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.03)' },
+                            ticks: { color: '#9CA3AF', font: { family: 'Outfit' } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.03)' },
+                            ticks: { color: '#9CA3AF', font: { family: 'Outfit' } }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Platform distribution (Doughnut)
+            const ctx2 = document.getElementById('platformPieChart').getContext('2d');
+            const platforms = ['amazon', 'flipkart', 'myntra'];
+            const platCounts = platforms.map(p => rawStats.platform_dist[p] || 0);
+
+            // Gradients for doughnut arcs
+            const gradAmz = ctx2.createLinearGradient(0, 0, 0, 200);
+            gradAmz.addColorStop(0, '#F59E0B');
+            gradAmz.addColorStop(1, '#D97706');
+
+            const gradFlp = ctx2.createLinearGradient(0, 0, 0, 200);
+            gradFlp.addColorStop(0, '#06B6D4');
+            gradFlp.addColorStop(1, '#0891B2');
+
+            const gradMyn = ctx2.createLinearGradient(0, 0, 0, 200);
+            gradMyn.addColorStop(0, '#EC4899');
+            gradMyn.addColorStop(1, '#DB2777');
+
+            platformChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Amazon', 'Flipkart', 'Myntra'],
+                    datasets: [{
+                        data: platCounts,
+                        backgroundColor: [gradAmz, gradFlp, gradMyn],
+                        borderColor: ['#F59E0B', '#06B6D4', '#EC4899'],
+                        borderWidth: 2,
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#E2E8F0',
+                                font: { family: 'Outfit', weight: '500' }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Render Performance table matrix
+        function renderCategoryMatrix() {
+            const container = document.getElementById('category-matrix-grid');
+            container.innerHTML = '';
+
+            rawStats.category_metrics.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'grid-cat-item';
+                
+                const dotColor = catColors[m.category] || '#888';
+                
+                item.innerHTML = `
+                    <div class="cat-item-title">
+                        <span>${m.category}</span>
+                        <div class="cat-badge" style="background: ${dotColor}"></div>
+                    </div>
+                    <div class="cat-stat-row">
+                        <span class="cat-stat-lbl">Sales Revenue</span>
+                        <span class="cat-stat-val">₹${m.revenue.toLocaleString()}</span>
+                    </div>
+                    <div class="cat-stat-row">
+                        <span class="cat-stat-lbl">Profit Margin</span>
+                        <span class="cat-stat-val" style="color: #34D399">₹${m.profit.toLocaleString()}</span>
+                    </div>
+                    <div class="cat-stat-row">
+                        <span class="cat-stat-lbl">Active Products</span>
+                        <span class="cat-stat-val">${m.total_products} items</span>
+                    </div>
+                    <div class="cat-stat-row">
+                        <span class="cat-stat-lbl">Avg Rating</span>
+                        <span class="cat-stat-val" style="color: #FBBF24">★ ${m.avg_rating.toFixed(1)}</span>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Dynamically slice the category metrics (Power BI functionality)
+        function sliceCategory(category, el) {
+            activeCategory = category;
+
+            // Update Slicer Chips
+            document.querySelectorAll('#slicer-chips .chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+
+            // Refresh visuals
+            updateKPIs();
+            updateCharts();
+            renderOrdersTable();
+        }
+
+        // Update KPIs based on slicer selection
+        function updateKPIs() {
+            let filteredSales = 0;
+            let filteredProfit = 0;
+            let filteredOrders = 0;
+            let totalProducts = 0;
+
+            if (activeCategory === 'All') {
+                filteredSales = rawStats.gross_sales;
+                filteredProfit = rawStats.net_margin;
+                filteredOrders = rawStats.total_orders;
+                totalProducts = rawStats.category_metrics.reduce((a, b) => a + b.total_products, 0);
+
+                document.getElementById('kpi-orders-subtitle').textContent = "All-time complete checkouts";
+                document.getElementById('kpi-products-subtitle').textContent = "Across 5 live categories";
+            } else {
+                const metric = rawStats.category_metrics.find(m => m.category === activeCategory) || {
+                    revenue: 0, profit: 0, orders_count: 0, total_products: 0
+                };
+                filteredSales = metric.revenue;
+                filteredProfit = metric.profit;
+                filteredOrders = metric.orders_count;
+                totalProducts = metric.total_products;
+
+                document.getElementById('kpi-orders-subtitle').textContent = `Orders under ${activeCategory}`;
+                document.getElementById('kpi-products-subtitle').textContent = `Active items in ${activeCategory}`;
+            }
+
+            // Animate values counting up
+            animateNumber('kpi-sales', filteredSales, true);
+            animateNumber('kpi-profit', filteredProfit, true);
+            animateNumber('kpi-orders', filteredOrders, false);
+            animateNumber('kpi-products', totalProducts, false);
+        }
+
+        // Animated numbers count-up helper
+        function animateNumber(id, endValue, isCurrency) {
+            const el = document.getElementById(id);
+            const duration = 600; // ms
+            const start = 0;
+            const startTime = performance.now();
+
+            function update(timestamp) {
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease out cubic
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const currentVal = Math.floor(start + easeProgress * (endValue - start));
+                
+                if (isCurrency) {
+                    el.textContent = `₹${currentVal.toLocaleString()}`;
+                } else {
+                    el.textContent = currentVal;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    if (isCurrency) {
+                        el.textContent = `₹${endValue.toLocaleString()}`;
+                    } else {
+                        el.textContent = endValue;
+                    }
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Redraw or filter charts dynamically
+        function updateCharts() {
+            // Update Platform doughnut
+            const filteredOrders = rawStats.recent_orders.filter(o => 
+                activeCategory === 'All' || o.category === activeCategory
+            );
+
+            const amz = filteredOrders.filter(o => o.chosen_platform === 'amazon').length;
+            const flp = filteredOrders.filter(o => o.chosen_platform === 'flipkart').length;
+            const myn = filteredOrders.filter(o => o.chosen_platform === 'myntra').length;
+
+            platformChart.data.datasets[0].data = [amz, flp, myn];
+            platformChart.update();
+
+            // Highlight chosen Category in Sales Margin Chart
+            const datasets = salesChart.data.datasets;
+            const met = rawStats.category_metrics;
+            
+            const backgroundColorsSales = met.map(x => 
+                (activeCategory === 'All' || x.category === activeCategory)
+                ? 'rgba(124, 58, 237, 0.85)'
+                : 'rgba(124, 58, 237, 0.15)'
+            );
+
+            const backgroundColorsProf = met.map(x => 
+                (activeCategory === 'All' || x.category === activeCategory)
+                ? 'rgba(6, 182, 212, 0.85)'
+                : 'rgba(6, 182, 212, 0.15)'
+            );
+
+            salesChart.data.datasets[0].backgroundColor = backgroundColorsSales;
+            salesChart.data.datasets[1].backgroundColor = backgroundColorsProf;
+            salesChart.update();
+        }
+
+        // Render recent orders table
+        function renderOrdersTable() {
+            const body = document.getElementById('orders-table-body');
+            body.innerHTML = '';
+
+            const filteredOrders = rawStats.recent_orders.filter(o => 
+                activeCategory === 'All' || o.category === activeCategory
+            );
+
+            if (filteredOrders.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--muted); padding: 40px;">No transactions logged under this Category yet.</td></tr>`;
+                return;
+            }
+
+            filteredOrders.forEach(o => {
+                const tr = document.createElement('tr');
+                const calculatedMargin = Math.round(o.total_price - (o.total_price / 1.10));
+                
+                tr.innerHTML = `
+                    <td style="font-weight: 500; color: #fff;">${o.product_title}</td>
+                    <td><span class="cat-tag">${o.category || 'Legacy'}</span></td>
+                    <td><span class="platform-badge platform-${o.chosen_platform}">${o.chosen_platform}</span></td>
+                    <td style="font-weight: 600;">₹${o.total_price.toLocaleString()}</td>
+                    <td style="color: #34D399;">₹${calculatedMargin.toLocaleString()}</td>
+                    <td><span class="status-paid">Paid</span></td>
+                    <td style="color: var(--muted); font-size: 12px;">${o.timestamp.substring(0, 16)}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        // Filter Orders list by search query input
+        function filterOrdersTable() {
+            const query = document.getElementById('order-search').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#orders-table-body tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        async function refreshStats() {
+            const res = await fetch('/api/admin/stats');
+            if (res.ok) {
+                window.location.reload();
+            }
+        }
+
+        // Banners & Category Video Management Scripting
+        async function loadBannersAdmin() {
+            try {
+                const res = await fetch('/api/banners');
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    renderBannersAdmin(data.banners);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderBannersAdmin(banners) {
+            const container = document.getElementById('banners-list-container');
+            container.innerHTML = '';
+            
+            if (banners.length === 0) {
+                container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 20px; font-size: 13px;">No carousel banners uploaded.</div>';
+                return;
+            }
+            
+            banners.forEach(b => {
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'space-between';
+                div.style.padding = '8px 12px';
+                div.style.background = 'rgba(255, 255, 255, 0.02)';
+                div.style.border = '1px solid var(--border)';
+                div.style.borderRadius = '10px';
+                
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${b.image_url}" style="width: 80px; height: 35px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+                        <span style="font-size: 11px; color: var(--muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${b.image_url}</span>
+                    </div>
+                    <button onclick="handleDeleteBanner(${b.id})" class="btn-refresh" style="padding: 4px 8px; color: var(--red); border-color: rgba(239, 68, 68, 0.2); font-size: 11px; margin: 0;">Delete</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function handleBannerUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                const res = await fetch('/api/admin/banners/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    renderBannersAdmin(data.banners);
+                    alert('Banner added successfully!');
+                } else {
+                    alert(data.error || 'Failed to upload banner.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while uploading banner.');
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function handleAddBanner(e) {
+            e.preventDefault();
+        }
+
+        async function handleDeleteBanner(bid) {
+            if (!confirm('Are you sure you want to delete this banner?')) return;
+            try {
+                const res = await fetch(`/api/admin/banners/delete/${bid}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    renderBannersAdmin(data.banners);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadVideosAdmin() {
+            try {
+                const res = await fetch('/api/category-videos');
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    renderVideosAdmin(data.videos);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderVideosAdmin(videos) {
+            const container = document.getElementById('videos-list-container');
+            container.innerHTML = '';
+            
+            if (videos.length === 0) {
+                container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 20px; font-size: 13px;">No category videos configured.</div>';
+                return;
+            }
+            
+            videos.forEach(v => {
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'space-between';
+                div.style.padding = '10px 14px';
+                div.style.background = 'rgba(255, 255, 255, 0.02)';
+                div.style.border = '1px solid var(--border)';
+                div.style.borderRadius = '10px';
+                
+                const imgThumb = v.image_url 
+                    ? `<img src="${v.image_url}" style="width: 50px; height: 35px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);" onerror="this.style.display='none'">` 
+                    : `<div style="width: 50px; height: 35px; border-radius: 4px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--muted);">No Img</div>`;
+                
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; margin-right: 12px;">
+                        ${imgThumb}
+                        <div style="flex: 1; min-width: 0;">
+                            <span style="font-weight: 700; font-size: 13px; color: var(--violet);">${v.category}</span>
+                            <div style="font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;" title="${v.video_url}">Video: ${v.video_url}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                        <button onclick="editVideoRow('${v.category}', '${v.video_url}', '${v.image_url || ''}')" class="btn-refresh" style="padding: 4px 10px; font-size: 11px; margin: 0; border-color: rgba(167, 139, 250, 0.3); color: var(--violet);">Change</button>
+                        <span style="font-size: 11px; color: var(--green); font-weight: 600;">Active</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function editVideoRow(category, videoUrl, imageUrl) {
+            const selectEl = document.getElementById('video-category-select');
+            const urlInput = document.getElementById('video-url-input');
+            const coverInput = document.getElementById('cover-url-input');
+            if (selectEl) selectEl.value = category;
+            if (urlInput) urlInput.value = videoUrl;
+            if (coverInput) coverInput.value = imageUrl;
+            if (selectEl) selectEl.focus();
+        }
+
+        async function handleVideoUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const category = document.getElementById('video-category-select').value;
+            if (!category) {
+                alert('Please select a Category first!');
+                input.value = '';
+                return;
+            }
+            
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('video', file);
+            formData.append('category', category);
+            
+            try {
+                const res = await fetch('/api/admin/category-videos', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    renderVideosAdmin(data.videos);
+                    alert('Video uploaded and updated successfully!');
+                } else {
+                    alert(data.error || 'Failed to upload video.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while uploading video.');
+            } finally {
+                input.value = '';
+            }
+        }
+
+        async function handleCoverUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const category = document.getElementById('video-category-select').value;
+            if (!category) {
+                alert('Please select a Category first!');
+                input.value = '';
+                return;
+            }
+            
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('category', category);
+            
+            try {
+                const res = await fetch('/api/admin/category-videos', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    renderVideosAdmin(data.videos);
+                    const record = data.videos.find(v => v.category.toLowerCase() === category.toLowerCase());
+                    if (record && record.image_url) {
+                        document.getElementById('cover-url-input').value = record.image_url;
+                    }
+                    alert('Category cover image uploaded successfully!');
+                } else {
+                    alert(data.error || 'Failed to upload cover image.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while uploading cover image.');
+            } finally {
+                input.value = '';
+            }
+        }
+
+        async function handleUpdateVideo(e) {
+            e.preventDefault();
+            const category = document.getElementById('video-category-select').value;
+            const videoUrl = document.getElementById('video-url-input').value.trim();
+            const coverUrl = document.getElementById('cover-url-input').value.trim();
+            
+            if (!category) {
+                alert('Please select a Category!');
+                return;
+            }
+            if (!videoUrl) {
+                alert('Please provide a Video Source URL or upload a video file!');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/admin/category-videos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, video_url: videoUrl, image_url: coverUrl })
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    renderVideosAdmin(data.videos);
+                    document.getElementById('video-url-input').value = '';
+                    document.getElementById('cover-url-input').value = '';
+                    alert('Category media updated successfully!');
+                } else {
+                    alert(data.error || 'Failed to update category media.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while updating category media.');
+            }
+        }
+    </script>
+</body>
+
+</html>
