@@ -68,7 +68,7 @@ Mashmart consists of multiple specialized agents:
 ---
 ## 🏗️ Architecture
 
-![Architecture](screenshorts/architecture.png)
+![Architecture](architecture.png)
 
 ---
 
@@ -160,27 +160,25 @@ http://127.0.0.1:5000
 
 ### Home Page
 
-![Home Page](screenshorts/home.png)
+![Home Page](home.png)
 
 ### AI Vision Search
 
-![Vision Search](screenshorts/vision-search.png)
+![Vision Search](vision-search.png)
 
 ### AI Shopping Assistant
 
-![AI Assistant](screenshorts/ai-assistant.png)
+![AI Assistant](ai-assistant.png)
 
 ### Gesture Navigation
 
-![Gesture Control](screenshorts/gesture-control.png)
+![Gesture Control](gesture-control.png)
 
 ### Analytics Dashboard
 
-![Analytics Dashboard](screenshorts/analytics-dashboard.png)
+![Analytics Dashboard](analytics-dashboard.png)
 
-### Architecture
 
-![Architecture](screenshorts/architecture.png)
 
 ---
 
