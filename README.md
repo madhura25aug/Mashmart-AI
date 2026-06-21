@@ -71,6 +71,11 @@ Administrators can:
 - Update category content
 - Maintain marketplace listings
 
+### Security Features
+The platform includes secure user authentication, session management, protected user accounts, password hashing , and role-based administrative access.
+
+### Antigravity Integration
+Mashmart AI was developed using Antigravity during the project development process to accelerate experimentation, prototyping, and implementation of the platform's multi-agent shopping workflows.
 ---
 
 # 🤖 AI Agent Architecture
